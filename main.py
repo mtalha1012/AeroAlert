@@ -8,14 +8,13 @@ import re
 from email.utils import parseaddr
 from WhatsApp_tester import send_msg, start_whatsApp, open_whatsApp, cache_cleanup
 from config import GEMINI_API_KEY, EMAIL, APP_PASSWORD, ALLOWED_SENDERS, DECISION_PROMPT, TEACHERS, CAPTION_PROMPT, \
-    GEMINI_MODEL
+    GEMINI_MODEL, CONTACT_NAME
 from google import genai
 import json
 import unicodedata
 from difflib import SequenceMatcher
 import datetime
 
-contact_name = "BSCS-15-A"
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 def normalize_name(name):
@@ -65,7 +64,7 @@ def process_email(msg):
             decision = gemini_call(msg.subject, msg.text, msg.from_,priority)
             print(datetime.datetime.now().strftime('%H:%M:%S.%f') + "gemini response received")
         if decision['share']:
-            send_msg(contact_name,decision['caption'])
+            send_msg(CONTACT_NAME,decision['caption'])
             print(f"🆕 New Email!")
             print(f"Subject : {msg.subject}")
             print(f"From    : {msg.from_}")
@@ -95,7 +94,6 @@ def start_alert():
 
                 while True:
                     responses = mailbox.idle.wait(timeout=3)
-                    print("response sensed")
                     for msg in mailbox.fetch(mark_seen=False, reverse = True, limit = 5):
                         if msg.uid not in known_uids:
                             print(datetime.datetime.now().strftime('%H:%M:%S.%f') + "Email detected")
